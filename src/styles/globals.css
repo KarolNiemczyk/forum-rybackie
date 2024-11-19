@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Inside globals.css */
+.bg-woda {
+  background-image: url("/woda.jpg"); /* Reference from the public folder */
+  background-size: cover; /* Ensures the image covers the whole area */
+  background-position: center; /* Centers the image */
+  background-repeat: no-repeat; /* Prevents the image from tiling */
+}
+.bg-wedki {
+  background-image: url("/wedki.webp"); /* Reference from the public folder */
+  background-size: cover; /* Ensures the image covers the whole area */
+  background-position: center; /* Centers the image */
+  background-repeat: no-repeat; /* Prevents the image from tiling */
+}
+.bg-lowiska {
+  background-image: url("/łowiska.jpg"); /* Reference from the public folder */
+  background-size: cover; /* Ensures the image covers the whole area */
+  background-position: center; /* Centers the image */
+  background-repeat: no-repeat; /* Prevents the image from tiling */
+}
+
+.bg-chat {
+  background-image: url("/chat.jpg"); /* Reference from the public folder */
+  background-size: cover; /* Ensures the image covers the whole area */
+  background-position: center; /* Centers the image */
+  background-repeat: no-repeat; /* Prevents the image from tiling */
+}
