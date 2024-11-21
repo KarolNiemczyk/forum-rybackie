@@ -1,42 +1,39 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Products from "@/components/products"; // Import komponentu Products
-
+import axios from "axios";
 export default function AdminPage() {
-  const [products, setProducts] = useState([
-    {
-      id: 1,
-      name: "Wędka Teleskopowa 3.5m",
-      price: 62,
-      image: "/teleskopowa_3.6m.webp",
-    },
-    {
-      id: 2,
-      name: "Wędka Spinningowa 1.8m",
-      price: 100,
-      image: "/spinningowa1.8m.jpg",
-    },
-  ]);
-
+  const [products, setProducts] = useState<any[]>([]);
   const [newProduct, setNewProduct] = useState({
     name: "",
     price: "",
     image: "",
   });
+  const product = {
+    name: newProduct.name,
+    price: parseFloat(newProduct.price),
+    image: newProduct.image,
+  };
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:5000/wedki");
+        if (response.status === 200) {
+          setProducts(response.data);
+        } else {
+          throw new Error("Błąd: Otrzymano status " + response.status);
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
 
+    fetchProducts();
+  }, []);
   // Obsługa dodawania nowego produktu
   const handleAddProduct = () => {
-    setProducts([
-      ...products,
-      {
-        id: products.length + 1,
-        name: newProduct.name,
-        price: parseFloat(newProduct.price),
-        image: newProduct.image,
-      },
-    ]);
-    setNewProduct({ name: "", price: "", image: "" });
+    axios.post("http://127.0.0.1:5000/wedki", product);
   };
 
   // Obsługa zmian formularza dodawania
