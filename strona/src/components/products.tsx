@@ -19,9 +19,11 @@ export default function Products({
   searchQuery,
   sortOrder,
 }: ProductsProps) {
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery)
-  );
+  const filteredProducts = Array.isArray(products)
+    ? products.filter((product) =>
+        product.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
 
   const sortedProducts = filteredProducts.sort((a, b) => {
     if (sortOrder === "priceAsc") return a.price - b.price;

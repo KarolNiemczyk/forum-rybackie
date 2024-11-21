@@ -1,27 +1,29 @@
 "use client";
-
-import React, { useState } from "react";
-import Products from "@/components/products"; // Import komponentu Products
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import Products from "@/components/products"; // Import your Products component
 
 export default function Page() {
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortOrder, setSortOrder] = useState("default");
+  const [products, setProducts] = useState<any[]>([]); // Manage the products state
 
-  // Tymczasowa lista produktów - w docelowej wersji powinna pochodzić z API lub stanu globalnego
-  const products = [
-    {
-      id: 1,
-      name: "Wędka Teleskopowa 3.5m",
-      price: 62,
-      image: "/teleskopowa_3.6m.webp",
-    },
-    {
-      id: 2,
-      name: "Wędka Spinningowa 1.8m",
-      price: 100,
-      image: "/spinningowa1.8m.jpg",
-    },
-  ];
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:5000/wedki");
+        if (response.status === 200) {
+          setProducts(response.data);
+        } else {
+          throw new Error("Błąd: Otrzymano status " + response.status);
+        }
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value.toLowerCase());
