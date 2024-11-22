@@ -7,19 +7,10 @@ export default function Page() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortOrder, setSortOrder] = useState("default");
   const [products, setProducts] = useState<any[]>([]); // Manage the products state
-  const product = {
-    name: "Wędka Spinningowa 1.8m",
-    price: 100,
-    image: "/spinningowa1.8m.jpg",
-  };
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const pierwsza_wedka = axios.post(
-          "http://127.0.0.1:5000/wedki",
-          product
-        );
         const response = await axios.get("http://127.0.0.1:5000/wedki");
         if (response.status === 200) {
           setProducts(response.data);

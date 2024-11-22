@@ -15,8 +15,8 @@ mongo = PyMongo(app)
 def add_Wedka():
     data = request.get_json()  # Odbieramy dane w formacie JSON
     
-    if not data or 'name' not in data or 'price' not in data:
-        return jsonify({'error': 'Brak wymaganych danych: name,price'}), 400
+    if not data or not data.get('name') or data.get('price') is None:
+        return jsonify({'error': 'Brak wymaganych danych: name, price'}), 400
 
     # Tworzymy dokument osoby       
     wedka = {
@@ -43,7 +43,25 @@ def get_wedki():
             'image': wedka.get('image')
         })
     return jsonify(results), 200
+@app.route('/wedki', methods=['DELETE'])
+def del_all_wedki():
+    mongo.db.wedki.delete_many({})
+    return jsonify({'message': 'Kolekcja jest teraz pusta.'}), 200
+from bson.objectid import ObjectId
 
-# Uruchomienie serwera Flask
+@app.route('/wedki/<wedka_id>', methods=['DELETE'])
+def del_single_wedka(wedka_id):
+    try:
+        # Usunięcie wędki na podstawie unikalnego identyfikatora
+        result = mongo.db.wedki.delete_one({'_id': ObjectId(wedka_id)})
+        
+        if result.deleted_count == 0:
+            return jsonify({'message': 'Wędka o podanym ID nie istnieje.'}), 404
+
+        return jsonify({'message': 'Wędka została usunięta.'}), 200
+    except Exception as e:
+        # Obsługa błędów, np. jeśli ID nie jest poprawnym ObjectId
+        return jsonify({'error': f'Nie udało się usunąć wędki: {str(e)}'}), 400
+
 if __name__ == '__main__':
     app.run(debug=True)
