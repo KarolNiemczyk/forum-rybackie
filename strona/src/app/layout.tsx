@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+// RootLayout.tsx
+import { Metadata } from "next";
 import localFont from "next/font/local";
 import "../styles/globals.css";
 import Nav from "@/components/nav";
@@ -21,15 +22,17 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  login,
 }: Readonly<{
   children: React.ReactNode;
+  login?: string;
 }>) {
   return (
     <html lang="pl">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Nav />
+        <Nav login={login} />
         {children}
       </body>
     </html>
