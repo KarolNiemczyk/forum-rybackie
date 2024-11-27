@@ -83,7 +83,7 @@ export default function AdminPage() {
           />
           <button
             onClick={handleAddProduct}
-            className="bg-gray-400 border-4 border-gray-600 text-white py-2 px-4 rounded-xl active:scale-70"
+            className="bg-blue-500 border-4 border-gray-600 text-white py-2 px-4 rounded-xl hover:bg-blue-600 transition-all duration-200"
           >
             Dodaj Wędkę
           </button>
@@ -99,13 +99,13 @@ export default function AdminPage() {
           ></input>
           <button
             onClick={() => handleDelProduct(toDelId)}
-            className="bg-red-600 border-4 border-gray-600 text-white py-2 px-4 rounded-xl active:scale-70"
+            className="bg-red-600 border-4 border-gray-600 text-white py-2 px-4 rounded-xl hover:bg-red-500 transition-all duration-200"
           >
             Usuń Wedke
           </button>
           <button
             onClick={handleDelAllProducts}
-            className="bg-red-600 border-4 border-gray-600 text-white py-2 px-4 rounded-xl active:scale-70"
+            className="bg-red-600 border-4 border-gray-600 text-white py-2 px-4 rounded-xl hover:bg-red-500 transition-all duration-200"
           >
             Usuń wszystkie
           </button>
