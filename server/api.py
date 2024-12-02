@@ -91,5 +91,53 @@ def login_user():
             return jsonify({'error': 'Niepoprawne hasło'}), 400
     else:
         return jsonify({'error': 'Niepoprawny login'}), 400
+@app.route('/wedki/<wedka_id>/name', methods=['PUT'])
+def update_wedka_name(wedka_id):
+    try:
+        data = request.get_json()
+        new_name = data.get('name')
+        if not new_name:
+            return jsonify({'error': 'Brak wymaganej nazwy'}), 400
+
+        result = mongo.db.wedki.update_one({'_id': ObjectId(wedka_id)}, {'$set': {'name': new_name}})
+        if result.matched_count == 0:
+            return jsonify({'message': 'Wędka o podanym ID nie istnieje.'}), 404
+
+        return jsonify({'message': 'Nazwa wędki została zaktualizowana.'}), 200
+    except Exception as e:
+        return jsonify({'error': f'Nie udało się zaktualizować nazwy: {str(e)}'}), 400
+
+@app.route('/wedki/<wedka_id>/price', methods=['PUT'])
+def update_wedka_price(wedka_id):
+    try:
+        data = request.get_json()
+        new_price = data.get('price')
+        if new_price is None:
+            return jsonify({'error': 'Brak wymaganej ceny'}), 400
+
+        result = mongo.db.wedki.update_one({'_id': ObjectId(wedka_id)}, {'$set': {'price': new_price}})
+        if result.matched_count == 0:
+            return jsonify({'message': 'Wędka o podanym ID nie istnieje.'}), 404
+
+        return jsonify({'message': 'Cena wędki została zaktualizowana.'}), 200
+    except Exception as e:
+        return jsonify({'error': f'Nie udało się zaktualizować ceny: {str(e)}'}), 400
+
+@app.route('/wedki/<wedka_id>/image', methods=['PUT'])
+def update_wedka_image(wedka_id):
+    try:
+        data = request.get_json()
+        new_image = data.get('image')
+        if not new_image:
+            return jsonify({'error': 'Brak wymaganego URL do zdjęcia'}), 400
+
+        result = mongo.db.wedki.update_one({'_id': ObjectId(wedka_id)}, {'$set': {'image': new_image}})
+        if result.matched_count == 0:
+            return jsonify({'message': 'Wędka o podanym ID nie istnieje.'}), 404
+
+        return jsonify({'message': 'Zdjęcie wędki zostało zaktualizowane.'}), 200
+    except Exception as e:
+        return jsonify({'error': f'Nie udało się zaktualizować zdjęcia: {str(e)}'}), 400
+
 if __name__ == '__main__':
     app.run(debug=True)
