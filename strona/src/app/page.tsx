@@ -13,11 +13,6 @@ export default function Home() {
   }, []);
 
   return (
-    <>
-      {/* Pass the login prop to the Nav component */}
-      <Nav login={login} />
-
-      {/* Main content of the page */}
       <h1 className="flex columns-3 justify-between bg-woda min-w-max items-center min-h-[90vh] px-[10vw] m-0 p-0 ">
         <Link href="chat-rybakow">
           <button
@@ -43,6 +38,5 @@ export default function Home() {
           </button>
         </Link>
       </h1>
-    </>
   );
 }

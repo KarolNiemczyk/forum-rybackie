@@ -91,6 +91,5 @@ def login_user():
             return jsonify({'error': 'Niepoprawne hasło'}), 400
     else:
         return jsonify({'error': 'Niepoprawny login'}), 400
-
 if __name__ == '__main__':
     app.run(debug=True)

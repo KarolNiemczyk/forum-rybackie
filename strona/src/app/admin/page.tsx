@@ -5,6 +5,9 @@ import Products from "@/components/products"; // Import komponentu Products
 import axios from "axios";
 export default function AdminPage() {
   const [products, setProducts] = useState<any[]>([]);
+  const [newName,setName]=useState({name:""})
+  const [newPrice,setPrice]=useState({price:""})
+  const [newImage,setImage]=useState({image:""})
   const [newProduct, setNewProduct] = useState({
     name: "",
     price: "",
@@ -110,7 +113,42 @@ export default function AdminPage() {
             Usuń wszystkie
           </button>
         </div>
-
+        <div className="flex flex-row gap-4 mt-8">
+        <input
+              type="text"
+              name="id"
+              placeholder="Id wedki do edycji"
+              value={toDelId}
+              onChange={handleIdSearch}
+              className="border-4 border-gray-600 p-4 rounded-xl"
+          ></input>
+          <input
+              type="text"
+              name="id"
+              placeholder="Nowa nazwa/cena/zdjecie"
+              value={toDelId}
+              onChange={handleIdSearch}
+              className="border-4 border-gray-600 p-4 rounded-xl"
+          ></input>
+          <button
+            // onClick={handleNameChange}
+            className="bg-green-500 border-4 border-gray-600 text-white py-2 px-4 rounded-xl hover:bg-green-600 transition-all duration-200"
+          >
+            Zmien Nazwe
+          </button>
+          <button
+            // onClick={handleNameChange}
+            className="bg-green-500 border-4 border-gray-600 text-white py-2 px-4 rounded-xl hover:bg-green-600 transition-all duration-200"
+          >
+            Zmien Cene
+          </button>
+          <button
+            // onClick={handleNameChange}
+            className="bg-green-500 border-4 border-gray-600 text-white py-2 px-4 rounded-xl hover:bg-green-600 transition-all duration-200"
+          >
+            Zmien Zdjecie
+          </button>
+        </div>
         {/* Podgląd produktów za pomocą komponentu Products */}
         <Products products={products} searchQuery="" sortOrder="default" />
       </section>

@@ -1,8 +1,11 @@
 // RootLayout.tsx
-import { Metadata } from "next";
+// import { Metadata } from "next";
+"use client"
 import localFont from "next/font/local";
 import "../styles/globals.css";
+import Cookies from "js-cookie";
 import Nav from "@/components/nav";
+import React, { useEffect, useState } from "react";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -15,18 +18,22 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-export const metadata: Metadata = {
-  title: "sklepik",
-  description: "",
-};
+// export const metadata: Metadata = {
+//   title: "sklepik",
+//   description: "",
+// };
 
 export default function RootLayout({
   children,
-  login,
 }: Readonly<{
   children: React.ReactNode;
-  login?: string;
 }>) {
+  const [login, setLogin] = useState<string | undefined>(Cookies.get("login"));
+
+  useEffect(() => {
+    const storedLogin = Cookies.get("login");
+    setLogin(storedLogin);
+  }, []);
   return (
     <html lang="pl">
       <body

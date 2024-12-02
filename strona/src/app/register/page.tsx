@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import Link from "next/link";
 
 export default function Register() {
   const [newUser, setNewUser] = useState({
@@ -100,6 +101,11 @@ export default function Register() {
           >
             Zaloguj
           </button>
+          <Link href="/register/pass_login_change">
+            <button className="border border-b-blue-600 font-light text-blue-700">
+              zmien haslo lub login
+            </button>
+          </Link>
         </div>
       </div>
     </div>
