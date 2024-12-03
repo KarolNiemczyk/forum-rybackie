@@ -1,5 +1,4 @@
 // RootLayout.tsx
-// import { Metadata } from "next";
 "use client"
 import localFont from "next/font/local";
 import "../styles/globals.css";
@@ -18,11 +17,6 @@ const geistMono = localFont({
   weight: "100 900",
 });
 
-// export const metadata: Metadata = {
-//   title: "sklepik",
-//   description: "",
-// };
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,16 +24,24 @@ export default function RootLayout({
 }>) {
   const [login, setLogin] = useState<string | undefined>(Cookies.get("login"));
 
+  const handleLogout = () => {
+    Cookies.remove("login");
+    setLogin(undefined); 
+    console.log("Wylogowano użytkownika");
+  };
+
   useEffect(() => {
     const storedLogin = Cookies.get("login");
     setLogin(storedLogin);
   }, []);
+
   return (
     <html lang="pl">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Nav login={login} />
+        {/* Nawigacja */}
+        <Nav login={login} onLogout={handleLogout} />
         {children}
       </body>
     </html>

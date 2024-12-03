@@ -49,7 +49,6 @@ export default function AdminPage() {
     window.location.reload();
   };
 
-  // Obsługa zmian formularza dodawania
   const handleNewProductChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewProduct({ ...newProduct, [e.target.name]: e.target.value });
   };
@@ -133,13 +132,13 @@ export default function AdminPage() {
           ></input>
           <button
             onClick={() => handleDelProduct(deleteID)}
-            className="bg-red-600 border-4 border-gray-600 text-white py-2 px-4 rounded-xl hover:bg-red-500 transition-all duration-200"
+            className="bg-red-500 border-4 border-gray-600 text-white py-2 px-4 rounded-xl hover:bg-red-600 transition-all duration-200"
           >
             Usuń Wedke
           </button>
           <button
             onClick={handleDelAllProducts}
-            className="bg-red-600 border-4 border-gray-600 text-white py-2 px-4 rounded-xl hover:bg-red-500 transition-all duration-200"
+            className="bg-red-500 border-4 border-gray-600 text-white py-2 px-4 rounded-xl hover:bg-red-600 transition-all duration-200"
           >
             Usuń wszystkie
           </button>

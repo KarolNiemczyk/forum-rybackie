@@ -76,7 +76,7 @@ export default function Register() {
         </button>
         {/* Sekcja logowania */}
         <div>
-          <h2 className="text-2xl font-bold text-center text-blue-600 mb-6">
+          <h2 className="text-2xl font-bold text-center py-4  text-blue-600 mb-6">
             Zaloguj się
           </h2>
           <input

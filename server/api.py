@@ -138,6 +138,29 @@ def update_wedka_image(wedka_id):
         return jsonify({'message': 'Zdjęcie wędki zostało zaktualizowane.'}), 200
     except Exception as e:
         return jsonify({'error': f'Nie udało się zaktualizować zdjęcia: {str(e)}'}), 400
+# @app.route('/users/<userslogin>/login', methods=['PUT'])
+# def update_user_login(userslogin):
+#     try:
+#         # Retrieve JSON payload
+#         data = request.get_json()
+#         new_login = data.get('login')
+
+#         # Validate the new login
+#         if not new_login or not isinstance(new_login, str):
+#             return jsonify({'error': 'Nieprawidłowy login'}), 400
+
+#         # Update the user's login in the database
+#         result = mongo.db.wedki.update_one({'login': userslogin}, {'$set': {'login': new_login}})
+        
+#         # Check if the document was updated
+#         if result.modified_count == 0:
+#             return jsonify({'error': 'Login nie został zmieniony lub użytkownik nie istnieje.'}), 404
+
+#         # Return success message
+#         return jsonify({'message': 'Login zaaktualizowany pomyślnie.'}), 200
+#     except Exception as e:
+#         print(f"Błąd serwera: {e}")  # Log the error
+#         return jsonify({'error': f'Nie udało się zaktualizować loginu: {str(e)}'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
