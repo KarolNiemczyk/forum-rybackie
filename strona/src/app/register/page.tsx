@@ -32,7 +32,7 @@ export default function Register() {
       );
       console.log("Zalogowano pomyślnie", response.data);
       Cookies.set("login", userLogin.login);
-      router.push("/");
+      window.location.reload();
     } catch (error) {
       console.error("Błąd podczas logowania:", error);
     }

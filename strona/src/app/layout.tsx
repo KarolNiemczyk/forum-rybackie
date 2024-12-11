@@ -1,5 +1,5 @@
 // RootLayout.tsx
-"use client"
+"use client";
 import localFont from "next/font/local";
 import "../styles/globals.css";
 import Cookies from "js-cookie";
@@ -26,8 +26,9 @@ export default function RootLayout({
 
   const handleLogout = () => {
     Cookies.remove("login");
-    setLogin(undefined); 
+    setLogin(undefined);
     console.log("Wylogowano użytkownika");
+    window.location.reload();
   };
 
   useEffect(() => {

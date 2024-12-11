@@ -27,19 +27,34 @@ def add_wedka():
     wedka_id = mongo.db.wedki.insert_one(wedka).inserted_id
 
     return jsonify({'message': f'Wędka została dodana z ID: {str(wedka_id)}'}), 201
-
 @app.route('/wedki', methods=['GET'])
-def get_wedki():
-    wedki = mongo.db.wedki.find()
-    results = []
-    for wedka in wedki:
-        results.append({
-            'id': str(wedka.get('_id')),  # Konwersja ObjectId na string
-            'name': wedka.get('name'),
-            'price': wedka.get('price'),
-            'image': wedka.get('image')
-        })
-    return jsonify(results), 200
+def get_products():
+    try:
+        search_query = request.args.get('search', '').lower()
+        sort_order = request.args.get('sort', 'default')
+
+        query = {}
+        if search_query:
+            query['name'] = {'$regex': search_query, '$options': 'i'} 
+
+        products = mongo.db.wedki.find(query)
+
+        # Sortowanie
+        if sort_order == 'priceAsc':
+            products = products.sort('price', 1)  # Sortowanie rosnące
+        elif sort_order == 'priceDesc':
+            products = products.sort('price', -1)  # Sortowanie malejące
+
+        # Przekształcenie wyników na listę
+        products_list = list(products)
+        for product in products_list:
+            product['_id'] = str(product['_id'])  # Konwersja ObjectId na string
+
+        return jsonify(products_list), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': 'Nie udało się pobrać produktów.'}), 500
 
 @app.route('/wedki', methods=['DELETE'])
 def del_all_wedki():
@@ -138,29 +153,52 @@ def update_wedka_image(wedka_id):
         return jsonify({'message': 'Zdjęcie wędki zostało zaktualizowane.'}), 200
     except Exception as e:
         return jsonify({'error': f'Nie udało się zaktualizować zdjęcia: {str(e)}'}), 400
-# @app.route('/users/<userslogin>/login', methods=['PUT'])
-# def update_user_login(userslogin):
-#     try:
-#         # Retrieve JSON payload
-#         data = request.get_json()
-#         new_login = data.get('login')
+@app.route('/users/<userslogin>/login', methods=['PUT'])
+def update_user_login(userslogin):
+    try:
+        data = request.get_json()
+        new_login = data.get('login')
 
-#         # Validate the new login
-#         if not new_login or not isinstance(new_login, str):
-#             return jsonify({'error': 'Nieprawidłowy login'}), 400
+        if not new_login or not isinstance(new_login, str):
+            return jsonify({'error': 'Nieprawidłowy login'}), 400
 
-#         # Update the user's login in the database
-#         result = mongo.db.wedki.update_one({'login': userslogin}, {'$set': {'login': new_login}})
-        
-#         # Check if the document was updated
-#         if result.modified_count == 0:
-#             return jsonify({'error': 'Login nie został zmieniony lub użytkownik nie istnieje.'}), 404
+        mongo.db.users.update_one({'login': userslogin}, {'$set': {'login': new_login}})
 
-#         # Return success message
-#         return jsonify({'message': 'Login zaaktualizowany pomyślnie.'}), 200
-#     except Exception as e:
-#         print(f"Błąd serwera: {e}")  # Log the error
-#         return jsonify({'error': f'Nie udało się zaktualizować loginu: {str(e)}'}), 500
+        return jsonify({'message': 'Login zaaktualizowany pomyślnie.'}), 200
+    except Exception as e:
+        print(f"Błąd serwera: {e}")  # Log the error
+        return jsonify({'error': f'Nie udało się zaktualizować loginu: {str(e)}'}), 500
+@app.route('/users/<userslogin>/password', methods=['PUT'])
+def update_user_password(userslogin):
+    try:
+        # Pobierz dane z zapytania
+        data = request.get_json()
+        first_password = data.get('password')
 
+        # Walidacja hasła
+        if not first_password or not isinstance(first_password, str):
+            return jsonify({'error': 'Nieprawidłowe hasło. Hasło musi mieć co najmniej 6 znaków.'}), 400
+
+        # Haszowanie hasła
+        hashed_password = bcrypt.hashpw(first_password.encode('utf-8'), bcrypt.gensalt())
+
+        # Aktualizacja hasła użytkownika w bazie
+        result = mongo.db.users.update_one(
+            {'login': userslogin},  # Znajdź użytkownika po loginie
+            {'$set': {'password': hashed_password.decode('utf-8')}}  # Przechowuj hasz w postaci stringa
+        )
+
+        return jsonify({'message': 'haslo zaaktualizowana pomyślnie.'}), 200
+    except Exception as e:
+        print(f"Błąd serwera: {e}")  # Log the error
+        return jsonify({'error': f'Nie udało się zaktualizować hasła: {str(e)}'}), 500
+@app.route('/users/<login>', methods=['DELETE'])
+def del_my_acc(login):
+    try:
+        mongo.db.users.delete_one({'login': login})
+
+        return jsonify({'message': 'Wędka została usunięta.'}), 200
+    except Exception as e:
+        return jsonify({'error': f'Nie udało się usunąć uzytkownika: {str(e)}'}), 400
 if __name__ == '__main__':
     app.run(debug=True)

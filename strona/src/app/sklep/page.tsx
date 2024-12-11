@@ -11,7 +11,15 @@ export default function Page() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:5000/wedki");
+        const params = {
+          search: searchQuery || "",
+          sort: sortOrder !== "default" ? sortOrder : "", // Jeżeli sortOrder nie jest domyślny, przekazujemy go
+        };
+
+        const response = await axios.get("http://127.0.0.1:5000/wedki", {
+          params,
+        });
+
         if (response.status === 200) {
           setProducts(response.data);
         } else {
@@ -23,7 +31,7 @@ export default function Page() {
     };
 
     fetchProducts();
-  }, []);
+  }, [searchQuery, sortOrder]);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value.toLowerCase());
