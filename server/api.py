@@ -200,5 +200,52 @@ def del_my_acc(login):
         return jsonify({'message': 'Wędka została usunięta.'}), 200
     except Exception as e:
         return jsonify({'error': f'Nie udało się usunąć uzytkownika: {str(e)}'}), 400
+    
+@app.route('/pokoje', methods=['POST'])
+def add_room():
+    data = request.get_json()  # Odbieramy dane w formacie JSON
+    
+    if not data or not data.get('name'):
+        return jsonify({'error': 'Brak wymaganych danych: name'}), 400
+
+    room = {
+        "name": data['name'],
+    }
+
+    room_id = mongo.db.pokoje.insert_one(room).inserted_id
+
+    return jsonify({'message': f'pokoj został dodany z ID: {str(room_id)}'}), 201
+
+
+@app.route('/pokoje', methods=['GET'])
+def get_rooms():
+    try:
+        rooms = mongo.db.pokoje.find()
+
+        # Przekształcenie wyników na listę
+        rooms_list = list(rooms)
+        for room in rooms_list:
+            room['_id'] = str(room['_id'])  # Konwersja ObjectId na string
+
+        return jsonify(rooms_list), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': 'Nie udało się pobrać pokoi.'}), 500
+@app.route('/chaty', methods=['POST'])
+def add_chat():
+    data = request.get_json()  # Odbieramy dane w formacie JSON
+    
+    if not data or not data.get('name') or not data.get('room'):
+        return jsonify({'error': 'Brak wymaganych danych: name'}), 400
+
+    chat = {
+        "name": data['name'],
+        "room": data['room'],
+    }
+
+    room_id = mongo.db.chaty.insert_one(chat).inserted_id
+
+    return jsonify({'message': f'pokoj został dodany z ID: {str(room_id)}'}), 201
 if __name__ == '__main__':
     app.run(debug=True)
