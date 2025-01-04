@@ -14,7 +14,7 @@ export default function Home() {
 
   return (
     <h1 className="flex columns-3 justify-between bg-woda min-w-max items-center min-h-[90vh] px-[10vw] m-0 p-0 ">
-      <Link href="chat-rybakow">
+      <Link href="/glowny">
         <button
           name="wedka"
           className="border-4 rounded-l w-min border-cyan-700 hover:translate-y-1 transition-transform duration-300"

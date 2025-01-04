@@ -11,9 +11,13 @@
   "dependencies": {
     "axios": "^1.7.7",
     "express": "^4.21.1",
+    "js-cookie": "^3.0.5",
     "next": "15.0.3",
     "react": "19.0.0-rc-66855b96-20241106",
     "react-dom": "19.0.0-rc-66855b96-20241106",
+    "simple-swizzle": "^0.2.2",
+    "socket.io-client": "^4.8.1",
+    "streamsearch": "^1.1.0",
     "uuid": "^11.0.3"
   },
   "devDependencies": {

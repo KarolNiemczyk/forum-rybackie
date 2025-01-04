@@ -240,6 +240,7 @@ def add_chat():
         return jsonify({'error': 'Brak wymaganych danych: name'}), 400
 
     chat = {
+        "user": data["user"],
         "name": data['name'],
         "room": data['room'],
     }
@@ -247,5 +248,23 @@ def add_chat():
     room_id = mongo.db.chaty.insert_one(chat).inserted_id
 
     return jsonify({'message': f'pokoj został dodany z ID: {str(room_id)}'}), 201
+
+@app.route('/chaty/<room>', methods=['GET'])
+def get_chats(room):
+    try:
+        # Filtrowanie w bazie danych na podstawie room
+        chats = mongo.db.chaty.find({"room": room})  
+
+        # Przekształcenie wyników na listę
+        chats_list = list(chats)
+        for chat in chats_list:
+            chat['_id'] = str(chat['_id'])    # Konwersja ObjectId na string
+
+        return jsonify(chats_list), 200
+
+    except Exception as e:
+        print(f"Error: {e}")
+        return jsonify({'error': 'Nie udało się pobrać pokoi.'}), 500
+
 if __name__ == '__main__':
     app.run(debug=True)
