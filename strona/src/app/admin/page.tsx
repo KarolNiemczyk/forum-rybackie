@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Products from "@/components/products"; // Import komponentu Products
 import axios from "axios";
+import mqtt from "mqtt";
 
 export default function AdminPage() {
   const [products, setProducts] = useState<any[]>([]);
@@ -15,12 +16,37 @@ export default function AdminPage() {
   const [deleteID, setDeleteID] = useState("");
   const [editID, setEditID] = useState("");
 
+  const [client, setClient] = useState<any>(null); // MQTT Client
+
   const product = {
     name: newProduct.name,
     price: parseFloat(newProduct.price),
     image: newProduct.image,
   };
 
+  // MQTT Client Initialization
+  useEffect(() => {
+    const mqttClient = mqtt.connect("ws://broker.hivemq.com:8000/mqtt");
+    setClient(mqttClient);
+
+    mqttClient.on("connect", () => {
+      console.log("MQTT Connected");
+      mqttClient.subscribe("products/updates");
+    });
+
+    mqttClient.on("message", (topic: string, message: Buffer) => {
+      if (topic === "products/updates") {
+        const updatedProducts = JSON.parse(message.toString());
+        setProducts(updatedProducts);
+      }
+    });
+
+    return () => {
+      mqttClient.end();
+    };
+  }, []);
+
+  // Fetch products initially
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -38,19 +64,25 @@ export default function AdminPage() {
     fetchProducts();
   }, []);
 
-  // Obsługa dodawania nowego produktu
   const handleAddProduct = () => {
-    axios.post("http://127.0.0.1:5000/wedki", product);
-    window.location.reload();
+    axios.post("http://127.0.0.1:5000/wedki", product).then(() => {
+      if (client) {
+        axios.get("http://127.0.0.1:5000/wedki").then((response) => {
+          if (response.status === 200) {
+            client.publish("products/updates", JSON.stringify(response.data));
+          }
+        });
+      }
+      setNewProduct({ name: "", price: "", image: "" });
+    });
   };
 
   const handleDelAllProducts = () => {
-    axios.delete("http://127.0.0.1:5000/wedki");
-    window.location.reload();
-  };
-
-  const handleNewProductChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewProduct({ ...newProduct, [e.target.name]: e.target.value });
+    axios.delete("http://127.0.0.1:5000/wedki").then(() => {
+      if (client) {
+        client.publish("products/updates", JSON.stringify([]));
+      }
+    });
   };
 
   const handleDeleteIDChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,8 +90,15 @@ export default function AdminPage() {
   };
 
   const handleDelProduct = (deleteID: string) => {
-    axios.delete(`http://127.0.0.1:5000/wedki/${deleteID}`);
-    window.location.reload();
+    axios.delete(`http://127.0.0.1:5000/wedki/${deleteID}`).then(() => {
+      if (client) {
+        axios.get("http://127.0.0.1:5000/wedki").then((response) => {
+          if (response.status === 200) {
+            client.publish("products/updates", JSON.stringify(response.data));
+          }
+        });
+      }
+    });
   };
 
   const handleUpdateWedka = (operation: string) => {
@@ -81,21 +120,30 @@ export default function AdminPage() {
 
     axios
       .put(endpoint, { [operation]: newValue })
-      .then(() => window.location.reload())
+      .then(() => {
+        if (client) {
+          axios.get("http://127.0.0.1:5000/wedki").then((response) => {
+            if (response.status === 200) {
+              client.publish("products/updates", JSON.stringify(response.data));
+            }
+          });
+        }
+      })
       .catch((error) => console.error(`Error updating ${operation}:`, error));
   };
 
   return (
     <div className="admin-page">
       <section className="flex flex-col items-center gap-5 py-10 px-16 bg-woda w-full min-h-screen bg-cover bg-center bg-fixed">
-        {/* Formularz dodawania produktu */}
         <div className="flex flex-row gap-4 mt-8">
           <input
             type="text"
             name="name"
             placeholder="Nazwa wędki"
             value={newProduct.name}
-            onChange={handleNewProductChange}
+            onChange={(e) =>
+              setNewProduct({ ...newProduct, name: e.target.value })
+            }
             className="border-4 border-gray-600 p-4 rounded-xl"
           />
           <input
@@ -103,7 +151,9 @@ export default function AdminPage() {
             name="price"
             placeholder="Cena"
             value={newProduct.price}
-            onChange={handleNewProductChange}
+            onChange={(e) =>
+              setNewProduct({ ...newProduct, price: e.target.value })
+            }
             className="border-4 border-gray-600 p-4 rounded-xl"
           />
           <input
@@ -111,7 +161,9 @@ export default function AdminPage() {
             name="image"
             placeholder="URL do zdjęcia"
             value={newProduct.image}
-            onChange={handleNewProductChange}
+            onChange={(e) =>
+              setNewProduct({ ...newProduct, image: e.target.value })
+            }
             className="border-4 border-gray-600 p-4 rounded-xl"
           />
           <button
@@ -179,7 +231,6 @@ export default function AdminPage() {
             Zmień zdjęcie
           </button>
         </div>
-        {/* Podgląd produktów za pomocą komponentu Products */}
         <Products products={products} searchQuery="" sortOrder="default" />
       </section>
     </div>

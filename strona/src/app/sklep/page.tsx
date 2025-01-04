@@ -1,12 +1,36 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import mqtt from "mqtt";
 import Products from "@/components/products"; // Import your Products component
 
 export default function Page() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [sortOrder, setSortOrder] = useState("default");
   const [products, setProducts] = useState<any[]>([]); // Manage the products state
+  const [client, setClient] = useState<any>(null); // MQTT client
+
+  useEffect(() => {
+    // Initialize MQTT client
+    const mqttClient = mqtt.connect("ws://broker.hivemq.com:8000/mqtt");
+    setClient(mqttClient);
+
+    mqttClient.on("connect", () => {
+      console.log("MQTT Connected");
+      mqttClient.subscribe("products/updates");
+    });
+
+    mqttClient.on("message", (topic: string, message: Buffer) => {
+      if (topic === "products/updates") {
+        const updatedProducts = JSON.parse(message.toString());
+        setProducts(updatedProducts);
+      }
+    });
+
+    return () => {
+      mqttClient.end();
+    };
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
