@@ -8,10 +8,12 @@ import Link from "next/link";
 export default function Register() {
   const [newUser, setNewUser] = useState({
     login: "",
+    mail: "",
     password: "",
   });
   const [userLogin, setUserLogin] = useState({
     login: "",
+    mail: "",
     password: "",
   });
   const router = useRouter();
@@ -24,6 +26,7 @@ export default function Register() {
       console.error("Błąd podczas rejestracji użytkownika:", error);
     }
   };
+
   const handleLogin = async () => {
     try {
       const response = await axios.post(
@@ -41,9 +44,11 @@ export default function Register() {
   const handleNewUserChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewUser({ ...newUser, [e.target.name]: e.target.value });
   };
+
   const handleLoginChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUserLogin({ ...userLogin, [e.target.name]: e.target.value });
   };
+
   return (
     <div className="flex justify-center items-center min-h-[90vh] bg-woda">
       <div className="w-full max-w-sm p-6 bg-white rounded-lg shadow-md">
@@ -54,8 +59,16 @@ export default function Register() {
           <input
             type="text"
             name="login"
-            placeholder="Wprowadź login"
+            placeholder="Wprowadź imie i nazwisko"
             value={newUser.login}
+            onChange={handleNewUserChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <input
+            type="email"
+            name="mail"
+            placeholder="Wprowadź e-mail"
+            value={newUser.mail}
             onChange={handleNewUserChange}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
@@ -103,7 +116,7 @@ export default function Register() {
           </button>
           <Link href="/register/pass_login_change">
             <button className="border border-b-blue-600 font-light text-blue-700">
-              zmien haslo lub login
+              Zmień hasło lub login
             </button>
           </Link>
         </div>

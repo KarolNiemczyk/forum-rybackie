@@ -1,5 +1,7 @@
+"use client";
 import Link from "next/link";
 import React, { useState } from "react";
+import { useCart } from "@/context/CartContext";
 
 interface NavProps {
   login: string | undefined;
@@ -8,6 +10,7 @@ interface NavProps {
 
 export default function Nav({ login, onLogout }: NavProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { cartCount } = useCart();
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
 
@@ -31,11 +34,7 @@ export default function Nav({ login, onLogout }: NavProps) {
                 className="w-10 h-10 flex justify-center items-center p-2 rounded-full hover:bg-gray-400 duration-300"
                 onClick={toggleDropdown}
               >
-                <img
-                  className="w-8"
-                  src="/ustawienia.png"
-                  alt="ustawienia"
-                />
+                <img className="w-8" src="/ustawienia.png" alt="ustawienia" />
               </button>
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg">
@@ -61,7 +60,7 @@ export default function Nav({ login, onLogout }: NavProps) {
             </li>
           )}
           {/* Koszyk */}
-          <li>
+          <li className="relative">
             <Link href="/cart">
               <img
                 className="w-10 h-10 p-2 rounded-full hover:bg-gray-400 duration-300"
@@ -69,6 +68,9 @@ export default function Nav({ login, onLogout }: NavProps) {
                 alt="Kosz"
               />
             </Link>
+            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              {cartCount}
+            </span>
           </li>
         </ul>
 
