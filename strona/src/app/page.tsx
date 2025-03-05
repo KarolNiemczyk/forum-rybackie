@@ -14,14 +14,17 @@ export default function Home() {
 
   return (
     <h1 className="flex columns-3 justify-between bg-woda min-w-max items-center min-h-[90vh] px-[10vw] m-0 p-0 ">
-      <Link href="/glowny">
+      <Link href="/raport">
         <button
           name="wedka"
-          className="border-4 rounded-l w-min border-cyan-700 hover:translate-y-1 transition-transform duration-300"
+          className={`border-4 rounded-l w-min border-cyan-700 hover:translate-y-1 transition-transform duration-300 ${
+            login !== "admin" ? "cursor-not-allowed opacity-50" : ""
+          }`}
+          disabled={login !== "admin"} // Dodajemy atrybut "disabled", żeby przycisk był nieaktywny
         >
-          <div className="bg-chat py-[30vh] px-[15vw]"></div>
+          <div className="bg-analiza py-[30vh] px-[15vw]"></div>
           <div className="bg-white px-[15vw] py-3 border-t-4 w-max border-gray-600 ">
-            Chat Rybaków
+            Raporty(admin)
           </div>
         </button>
       </Link>

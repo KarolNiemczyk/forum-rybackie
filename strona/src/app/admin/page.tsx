@@ -4,25 +4,14 @@ import React, { useState, useEffect } from "react";
 import Products from "@/components/products"; // Import komponentu Products
 import axios from "axios";
 import mqtt from "mqtt";
+import { Formik, Field, Form } from "formik"; // Import Formika
 
 export default function AdminPage() {
   const [products, setProducts] = useState<any[]>([]);
+  const [deleteName, setDeleteName] = useState(""); // Zmieniono na nazwę wędki
+  const [editName, setEditName] = useState(""); // Zmieniono na nazwę wędki
   const [newValue, setNewValue] = useState("");
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    price: "",
-    image: "",
-  });
-  const [deleteID, setDeleteID] = useState("");
-  const [editID, setEditID] = useState("");
-
   const [client, setClient] = useState<any>(null); // MQTT Client
-
-  const product = {
-    name: newProduct.name,
-    price: parseFloat(newProduct.price),
-    image: newProduct.image,
-  };
 
   // MQTT Client Initialization
   useEffect(() => {
@@ -64,17 +53,25 @@ export default function AdminPage() {
     fetchProducts();
   }, []);
 
-  const handleAddProduct = () => {
-    axios.post("http://127.0.0.1:5000/wedki", product).then(() => {
-      if (client) {
-        axios.get("http://127.0.0.1:5000/wedki").then((response) => {
-          if (response.status === 200) {
-            client.publish("products/updates", JSON.stringify(response.data));
-          }
-        });
-      }
-      setNewProduct({ name: "", price: "", image: "" });
-    });
+  const handleAddProduct = (values: any) => {
+    axios
+      .post("http://127.0.0.1:5000/wedki", {
+        name: values.name,
+        price: parseFloat(values.price),
+        image: values.image,
+        categories: values.categories.split(","), // Zamień string na listę kategorii
+        description: values.description,
+        size: values.size,
+      })
+      .then(() => {
+        if (client) {
+          axios.get("http://127.0.0.1:5000/wedki").then((response) => {
+            if (response.status === 200) {
+              client.publish("products/updates", JSON.stringify(response.data));
+            }
+          });
+        }
+      });
   };
 
   const handleDelAllProducts = () => {
@@ -85,12 +82,12 @@ export default function AdminPage() {
     });
   };
 
-  const handleDeleteIDChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDeleteID(event.target.value);
+  const handleDeleteNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setDeleteName(event.target.value); // Zmieniono na nazwę
   };
 
-  const handleDelProduct = (deleteID: string) => {
-    axios.delete(`http://127.0.0.1:5000/wedki/${deleteID}`).then(() => {
+  const handleDelProduct = (deleteName: string) => {
+    axios.delete(`http://127.0.0.1:5000/wedki/name/${deleteName}`).then(() => {
       if (client) {
         axios.get("http://127.0.0.1:5000/wedki").then((response) => {
           if (response.status === 200) {
@@ -100,26 +97,30 @@ export default function AdminPage() {
       }
     });
   };
-
   const handleUpdateWedka = (operation: string) => {
     let endpoint = "";
+    let requestBody = {};
+  
     switch (operation) {
       case "name":
-        endpoint = `http://127.0.0.1:5000/wedki/${editID}/name`;
+        endpoint = `http://127.0.0.1:5000/wedki/${editName}/name`;
+        requestBody = { name: newValue };  // Update the name
         break;
       case "price":
-        endpoint = `http://127.0.0.1:5000/wedki/${editID}/price`;
+        endpoint = `http://127.0.0.1:5000/wedki/${editName}/price`;
+        requestBody = { price: parseFloat(newValue) };  // Ensure price is a number
         break;
       case "image":
-        endpoint = `http://127.0.0.1:5000/wedki/${editID}/image`;
+        endpoint = `http://127.0.0.1:5000/wedki/${editName}/image`;
+        requestBody = { image: newValue };  // Update the image URL
         break;
       default:
-        console.error("Nieznana operacja");
+        console.error("Unknown operation");
         return;
     }
-
+  
     axios
-      .put(endpoint, { [operation]: newValue })
+      .put(endpoint, requestBody)
       .then(() => {
         if (client) {
           axios.get("http://127.0.0.1:5000/wedki").then((response) => {
@@ -129,64 +130,83 @@ export default function AdminPage() {
           });
         }
       })
-      .catch((error) => console.error(`Error updating ${operation}:`, error));
+      .catch((error) => {
+        console.error(`Error updating ${operation}:`, error);
+        alert(`Error updating ${operation}: ${error.response?.data?.error || error.message}`);
+      });
   };
+  
 
   return (
     <div className="admin-page">
       <section className="flex flex-col items-center gap-5 py-10 px-16 bg-woda w-full min-h-screen bg-cover bg-center bg-fixed">
-        <div className="flex flex-row gap-4 mt-8">
-          <input
-            type="text"
-            name="name"
-            placeholder="Nazwa wędki"
-            value={newProduct.name}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, name: e.target.value })
-            }
-            className="border-4 border-gray-600 p-4 rounded-xl"
-          />
-          <input
-            type="text"
-            name="price"
-            placeholder="Cena"
-            value={newProduct.price}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, price: e.target.value })
-            }
-            className="border-4 border-gray-600 p-4 rounded-xl"
-          />
-          <input
-            type="text"
-            name="image"
-            placeholder="URL do zdjęcia"
-            value={newProduct.image}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, image: e.target.value })
-            }
-            className="border-4 border-gray-600 p-4 rounded-xl"
-          />
-          <button
-            onClick={handleAddProduct}
-            className="bg-blue-500 border-4 border-gray-600 text-white py-2 px-4 rounded-xl hover:bg-blue-600 transition-all duration-200"
+        <div className="flex flex-col gap-4 mt-8">
+          <Formik
+            initialValues={{
+              name: "",
+              price: "",
+              image: "",
+              categories: "",
+              description: "",
+              size: "",
+            }}
+            onSubmit={handleAddProduct}
           >
-            Dodaj Wędkę
-          </button>
+            <Form>
+              <Field
+                name="name"
+                placeholder="Nazwa wędki"
+                className="border-4 border-gray-600 p-4 rounded-xl"
+              />
+              <Field
+                name="price"
+                placeholder="Cena"
+                className="border-4 border-gray-600 p-4 rounded-xl"
+              />
+              <Field
+                name="image"
+                placeholder="URL do zdjęcia"
+                className="border-4 border-gray-600 p-4 rounded-xl"
+              />
+              <Field
+                name="categories"
+                placeholder="Kategorie (oddzielone przecinkami)"
+                className="border-4 border-gray-600 p-4 rounded-xl"
+              />
+              <Field
+                name="description"
+                placeholder="Opis wędki"
+                className="border-4 border-gray-600 p-4 rounded-xl"
+              />
+              <Field
+                name="size"
+                placeholder="Rozmiar wędki"
+                className="border-4 border-gray-600 p-4 rounded-xl"
+              />
+              <button
+                type="submit"
+                className="bg-blue-500 border-4 border-gray-600 text-white py-2 px-4 rounded-xl hover:bg-blue-600 transition-all duration-200"
+              >
+                Dodaj Wędkę
+              </button>
+            </Form>
+          </Formik>
         </div>
+
         <div className="flex flex-row gap-4 mt-8">
           <input
             type="text"
-            name="deleteID"
-            placeholder="Id wedki do usuniecia"
-            value={deleteID}
-            onChange={handleDeleteIDChange}
+            name="deleteName" // Zmieniono na nazwę
+            placeholder="Nazwa wędki do usunięcia"
+            value={deleteName}
+            onChange={handleDeleteNameChange}
             className="border-4 border-gray-600 p-4 rounded-xl"
-          ></input>
+          />
           <button
-            onClick={() => handleDelProduct(deleteID)}
+            onClick={() => handleDelProduct(deleteName)} // Zmieniono na nazwę
             className="bg-red-500 border-4 border-gray-600 text-white py-2 px-4 rounded-xl hover:bg-red-600 transition-all duration-200"
           >
-            Usuń Wedke
+            Usuń Wędkę
           </button>
           <button
             onClick={handleDelAllProducts}
@@ -198,10 +218,10 @@ export default function AdminPage() {
         <div className="flex flex-row gap-4 mt-8">
           <input
             type="text"
-            name="editID"
-            placeholder="Id wędki do edycji"
-            value={editID}
-            onChange={(e) => setEditID(e.target.value)}
+            name="editName" // Zmieniono na nazwę
+            placeholder="Nazwa wędki do edycji"
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
             className="border-4 border-gray-600 p-4 rounded-xl"
           />
           <input
@@ -231,7 +251,12 @@ export default function AdminPage() {
             Zmień zdjęcie
           </button>
         </div>
-        <Products products={products} searchQuery="" sortOrder="default" />
+        <Products
+          products={products}
+          searchQuery=""
+          sortOrder="default"
+          selectedCategory=""
+        />
       </section>
     </div>
   );

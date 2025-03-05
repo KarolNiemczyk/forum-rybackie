@@ -1,10 +1,11 @@
-// RootLayout.tsx
 "use client";
+
 import localFont from "next/font/local";
 import "../styles/globals.css";
 import Cookies from "js-cookie";
 import Nav from "@/components/nav";
 import React, { useEffect, useState } from "react";
+import { CartProvider } from "@/context/CartContext"; // Import CartProvider
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -41,9 +42,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* Nawigacja */}
-        <Nav login={login} onLogout={handleLogout} />
-        {children}
+        {/* Otocz aplikację CartProvider */}
+        <CartProvider>
+          <Nav login={login} onLogout={handleLogout} />
+          {children}
+        </CartProvider>
       </body>
     </html>
   );
